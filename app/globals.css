@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #ededed;
+  --background: #0a0a0a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--foreground);
+  background: #0a0a0a;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero gradient glow */
+.hero-glow {
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 500px;
+  background: radial-gradient(ellipse at center, rgba(236, 72, 153, 0.15), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Button glow effect */
+.btn-glow {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Text gradient for headlines */
+.text-gradient {
+  background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Niche card styling */
+.niche-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.niche-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.niche-card.selected {
+  background: rgba(236, 72, 153, 0.1);
+  border-color: #ec4899;
+}
+
+/* Generator container */
+.generator-container {
+  background: rgba(24, 24, 27, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+/* Input styling */
+.custom-textarea {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  padding: 16px;
+  width: 100%;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.custom-textarea:focus {
+  border-color: #ec4899;
+}
+
+.custom-textarea::placeholder {
+  color: #52525b;
+}
+
+/* Aspect ratio button */
+.aspect-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #71717a;
+  border: none;
+  cursor: pointer;
+}
+
+.aspect-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.aspect-btn.active {
+  background: #ec4899;
+  color: white;
+}
