@@ -39,10 +39,28 @@ export function Hero() {
     // Tab state for Generate/Pricing
     const [activeTab, setActiveTab] = useState<"generate" | "pricing">("generate");
 
+    // Commentary slideshow state
+    const [commentarySlideIndex, setCommentarySlideIndex] = useState(0);
+    const [isCommentaryHovered, setIsCommentaryHovered] = useState(false);
+    const commentarySamples = [
+        "/commentary-1.png",
+        "/commentary-2.png",
+        "/commentary-3.png",
+        "/commentary-4.png",
+    ];
+
     // Load remaining uses on mount
     useEffect(() => {
         setRemainingUses(getRemainingUses());
     }, []);
+
+    // Commentary slideshow auto-cycle
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCommentarySlideIndex((prev) => (prev + 1) % commentarySamples.length);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, [commentarySamples.length]);
 
     const niches = [
         { id: "gaming" as Niche, label: "Gaming", icon: Gamepad2, description: "Vibrant, action-packed thumbnails" },
@@ -117,14 +135,24 @@ export function Hero() {
 
     const handleDownload = () => {
         if (generatedImage) {
+            const timestamp = Date.now();
+            const filename = `thumbjuice-${niche || 'thumbnail'}-${timestamp}.png`;
             const link = document.createElement("a");
             link.href = generatedImage;
-            link.download = "thumbjuice-thumbnail.png";
+            link.download = filename;
             link.target = "_blank";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
+    };
+
+    const handleReset = () => {
+        setNiche(null);
+        setPrompt("");
+        setGeneratedImage(null);
+        setError(null);
+        setProgress(0);
     };
 
     // Get preview canvas dimensions based on aspect ratio
@@ -191,13 +219,15 @@ export function Hero() {
                         {[
                             { label: "Home", href: "/" },
                             { label: "Generate", href: "#generate" },
+                            { label: "Pricing", href: "/pricing" },
+                            { label: "Services", href: "/pricing#custom-services" },
                             { label: "About", href: "/about" },
                             { label: "Contact", href: "/contact" },
                         ].map((item) => (
                             <Link
                                 key={item.label}
                                 href={item.href}
-                                style={{ fontSize: "14px", color: "#a1a1aa", textDecoration: "none" }}
+                                style={{ fontSize: "14px", color: "#a1a1aa", textDecoration: "none", transition: "color 0.2s ease" }}
                             >
                                 {item.label}
                             </Link>
@@ -414,7 +444,10 @@ export function Hero() {
                                             <div
                                                 key={n.id}
                                                 onClick={() => setNiche(n.id)}
+                                                onMouseEnter={() => n.id === "commentary" && setIsCommentaryHovered(true)}
+                                                onMouseLeave={() => n.id === "commentary" && setIsCommentaryHovered(false)}
                                                 style={{
+                                                    position: "relative",
                                                     padding: "20px",
                                                     borderRadius: "12px",
                                                     background: niche === n.id ? "rgba(139, 92, 246, 0.15)" : "rgba(255,255,255,0.03)",
@@ -423,6 +456,45 @@ export function Hero() {
                                                     transition: "all 0.2s ease",
                                                 }}
                                             >
+                                                {/* Commentary floating preview - appears ABOVE the card on hover, only when NOT selected */}
+                                                {n.id === "commentary" && isCommentaryHovered && niche !== "commentary" && (
+                                                    <div
+                                                        style={{
+                                                            position: "absolute",
+                                                            bottom: "100%",
+                                                            left: "50%",
+                                                            transform: "translateX(-50%)",
+                                                            marginBottom: "12px",
+                                                            width: "280px",
+                                                            height: "157px",
+                                                            borderRadius: "12px",
+                                                            overflow: "hidden",
+                                                            boxShadow: "0 10px 40px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.2)",
+                                                            zIndex: 100,
+                                                            pointerEvents: "none",
+                                                            animation: "slideshow-zoom 2s ease-in-out infinite",
+                                                        }}
+                                                    >
+                                                        {commentarySamples.map((img, idx) => (
+                                                            <img
+                                                                key={img}
+                                                                src={img}
+                                                                alt={`Commentary sample ${idx + 1}`}
+                                                                style={{
+                                                                    position: "absolute",
+                                                                    top: 0,
+                                                                    left: 0,
+                                                                    width: "100%",
+                                                                    height: "100%",
+                                                                    objectFit: "cover",
+                                                                    opacity: commentarySlideIndex === idx ? 0.45 : 0,
+                                                                    transition: "opacity 0.6s ease-in-out",
+                                                                }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+
                                                 <n.icon style={{ width: "24px", height: "24px", marginBottom: "12px", color: niche === n.id ? "#a78bfa" : "#71717a" }} />
                                                 <div style={{ fontWeight: 500, color: "white" }}>{n.label}</div>
                                                 <div style={{ fontSize: "12px", color: "#52525b", marginTop: "4px" }}>{n.description}</div>
@@ -630,40 +702,87 @@ export function Hero() {
                                             </div>
                                         ) : (
                                             generatedImage && (
-                                                <div
-                                                    style={{
-                                                        position: "relative",
-                                                        width: "100%",
-                                                        borderRadius: "12px",
-                                                        overflow: "hidden",
-                                                        border: "1px solid rgba(139, 92, 246, 0.3)",
-                                                        background: "#18181b",
-                                                        aspectRatio: aspectRatio === "16:9" ? "16/9" : aspectRatio === "1:1" ? "1/1" : "9/16",
-                                                        maxWidth: aspectRatio === "9:16" ? "300px" : "100%",
-                                                        margin: aspectRatio === "9:16" ? "0 auto" : undefined,
-                                                    }}
-                                                >
-                                                    <img src={generatedImage} alt="Generated Thumbnail" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                                                     <div
                                                         style={{
-                                                            position: "absolute",
-                                                            inset: 0,
-                                                            background: "rgba(0,0,0,0.7)",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            gap: "16px",
-                                                            opacity: 0,
-                                                            transition: "opacity 0.2s ease",
+                                                            position: "relative",
+                                                            width: "100%",
+                                                            borderRadius: "12px",
+                                                            overflow: "hidden",
+                                                            border: "1px solid rgba(139, 92, 246, 0.3)",
+                                                            background: "#18181b",
+                                                            aspectRatio: aspectRatio === "16:9" ? "16/9" : aspectRatio === "1:1" ? "1/1" : "9/16",
+                                                            maxWidth: aspectRatio === "9:16" ? "300px" : "100%",
+                                                            margin: aspectRatio === "9:16" ? "0 auto" : undefined,
                                                         }}
-                                                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
-                                                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0"; }}
                                                     >
-                                                        <button onClick={handleGenerate} style={{ height: "40px", padding: "0 20px", borderRadius: "9999px", background: "transparent", color: "white", fontSize: "14px", fontWeight: 500, border: "1px solid #52525b", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
-                                                            <RefreshCw style={{ width: "16px", height: "16px" }} /> Regenerate
+                                                        <img src={generatedImage} alt="Generated Thumbnail" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                        <div
+                                                            style={{
+                                                                position: "absolute",
+                                                                inset: 0,
+                                                                background: "rgba(0,0,0,0.7)",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center",
+                                                                gap: "16px",
+                                                                opacity: 0,
+                                                                transition: "opacity 0.2s ease",
+                                                            }}
+                                                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                                                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0"; }}
+                                                        >
+                                                            <button onClick={handleGenerate} style={{ height: "40px", padding: "0 20px", borderRadius: "9999px", background: "transparent", color: "white", fontSize: "14px", fontWeight: 500, border: "1px solid #52525b", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", transition: "all 0.2s ease" }}>
+                                                                <RefreshCw style={{ width: "16px", height: "16px" }} /> Regenerate
+                                                            </button>
+                                                            <button onClick={handleDownload} style={{ height: "40px", padding: "0 20px", borderRadius: "9999px", background: "#22c55e", color: "white", fontSize: "14px", fontWeight: 500, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", transition: "all 0.2s ease" }}>
+                                                                <Download style={{ width: "16px", height: "16px" }} /> Download
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Prominent Action Buttons Below Image */}
+                                                    <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
+                                                        <button
+                                                            onClick={handleDownload}
+                                                            style={{
+                                                                height: "48px",
+                                                                padding: "0 32px",
+                                                                borderRadius: "9999px",
+                                                                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                                                                color: "white",
+                                                                fontSize: "16px",
+                                                                fontWeight: 600,
+                                                                border: "none",
+                                                                cursor: "pointer",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                gap: "8px",
+                                                                boxShadow: "0 0 24px rgba(34, 197, 94, 0.4)",
+                                                                transition: "all 0.2s ease",
+                                                            }}
+                                                        >
+                                                            <Download style={{ width: "18px", height: "18px" }} /> Download Thumbnail
                                                         </button>
-                                                        <button onClick={handleDownload} style={{ height: "40px", padding: "0 20px", borderRadius: "9999px", background: "#22c55e", color: "white", fontSize: "14px", fontWeight: 500, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
-                                                            <Download style={{ width: "16px", height: "16px" }} /> Download
+                                                        <button
+                                                            onClick={handleReset}
+                                                            style={{
+                                                                height: "48px",
+                                                                padding: "0 32px",
+                                                                borderRadius: "9999px",
+                                                                background: "transparent",
+                                                                color: "white",
+                                                                fontSize: "16px",
+                                                                fontWeight: 500,
+                                                                border: "1px solid rgba(139, 92, 246, 0.4)",
+                                                                cursor: "pointer",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                gap: "8px",
+                                                                transition: "all 0.2s ease",
+                                                            }}
+                                                        >
+                                                            <RefreshCw style={{ width: "18px", height: "18px" }} /> Generate Another
                                                         </button>
                                                     </div>
                                                 </div>
@@ -699,7 +818,7 @@ export function Hero() {
                                         <span style={{ fontSize: "18px", color: "#666", marginLeft: "4px" }}>/Month</span>
                                     </div>
                                     <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
-                                        {["Unlimited thumbnails", "FLUX Schnell (fast)", "1280x720 resolution", "PNG/JPG downloads", "7-day history"].map((feature) => (
+                                        {["Unlimited thumbnails", "FLUX Schnell (fast)", "1280x720 resolution", "PNG/JPG downloads", "7-day history", "📧 Email support"].map((feature) => (
                                             <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: "#ccc" }}>
                                                 <CheckCircle size={18} style={{ color: "#666" }} />
                                                 {feature}
@@ -723,7 +842,7 @@ export function Hero() {
                                         <span style={{ fontSize: "18px", color: "#666", marginLeft: "4px" }}>/Month</span>
                                     </div>
                                     <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
-                                        {["Everything in Basic, plus:", "FLUX Pro (premium quality)", "Multiple aspect ratios", "Unlimited history", "Style customization", "Trend-based templates", "Batch generation (10x)", "Priority support"].map((feature, i) => (
+                                        {["Everything in Basic, plus:", "FLUX Pro (premium quality)", "Multiple aspect ratios", "Unlimited history", "Style customization", "Trend-based templates", "Batch generation (10x)", "🎨 Priority custom gig requests", "💬 Priority support"].map((feature, i) => (
                                             <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: i === 0 ? "#a855f7" : "#ccc" }}>
                                                 <CheckCircle size={18} style={{ color: "#a855f7" }} />
                                                 {feature}
@@ -736,7 +855,10 @@ export function Hero() {
                                 </div>
 
                                 {/* MAX CARD */}
-                                <div style={{ background: "#1a1a2e", borderRadius: "16px", padding: "40px", border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 0 30px rgba(255,255,255,0.05)" }}>
+                                <div style={{ position: "relative", background: "#1a1a2e", borderRadius: "16px", padding: "40px", border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 0 30px rgba(255,255,255,0.05)" }}>
+                                    <div style={{ position: "absolute", top: "-12px", right: "24px", background: "linear-gradient(135deg, #ffd700, #f59e0b)", padding: "6px 16px", borderRadius: "9999px", fontSize: "11px", fontWeight: 700, color: "#0a0a0a", textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 12px rgba(255, 215, 0, 0.4)" }}>
+                                        Best Value
+                                    </div>
                                     <h3 style={{ fontSize: "20px", fontWeight: 600, color: "white", marginBottom: "4px" }}>Max</h3>
                                     <p style={{ fontSize: "14px", color: "#888", marginBottom: "24px" }}>For enterprises & agencies</p>
                                     <div style={{ marginBottom: "32px" }}>
@@ -744,7 +866,7 @@ export function Hero() {
                                         <span style={{ fontSize: "18px", color: "#666", marginLeft: "4px" }}>/Month</span>
                                     </div>
                                     <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
-                                        {["Everything in Pro, plus:", "Custom designs by real designers", "1 custom thumbnail/week", "Personal style training", "API access (500 req/mo)", "Bulk generation (50x)", "A/B testing & analytics", "White-label option", "24/7 priority support"].map((feature, i) => (
+                                        {["Everything in Pro, plus:", "🎨 1 custom thumbnail/week by our design team", "📞 Monthly 1-on-1 design review", "Personal style training", "API access (500 req/mo)", "Bulk generation (50x)", "A/B testing & analytics", "White-label option", "24/7 priority support"].map((feature, i) => (
                                             <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: i === 0 ? "#ffd700" : "#ccc" }}>
                                                 <CheckCircle size={18} style={{ color: "#ffd700" }} />
                                                 {feature}
@@ -802,6 +924,10 @@ export function Hero() {
             <style jsx global>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes wave { 0% { transform: translateX(0); } 100% { transform: translateX(-50px); } }
+        @keyframes slideshow-zoom { 
+          0%, 100% { transform: translateX(-50%) scale(1); } 
+          50% { transform: translateX(-50%) scale(1.08); } 
+        }
       `}</style>
 
             {/* Remaining Uses Badge */}
@@ -810,19 +936,31 @@ export function Hero() {
                     position: "fixed",
                     top: "80px",
                     right: "24px",
-                    padding: "8px 16px",
+                    padding: "10px 18px",
                     borderRadius: "9999px",
-                    background: remainingUses > 0 ? "rgba(139, 92, 246, 0.2)" : "rgba(239, 68, 68, 0.2)",
-                    border: remainingUses > 0 ? "1px solid rgba(139, 92, 246, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)",
+                    background: remainingUses === 0
+                        ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                        : remainingUses === 1
+                            ? "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+                            : "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)",
+                    boxShadow: remainingUses === 0
+                        ? "0 4px 20px rgba(239, 68, 68, 0.4)"
+                        : remainingUses === 1
+                            ? "0 4px 20px rgba(245, 158, 11, 0.4)"
+                            : "0 4px 20px rgba(139, 92, 246, 0.4)",
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
                     zIndex: 40,
                 }}
             >
-                <Sparkles size={14} style={{ color: remainingUses > 0 ? "#a78bfa" : "#ef4444" }} />
-                <span style={{ fontSize: "13px", fontWeight: 500, color: remainingUses > 0 ? "#c4b5fd" : "#fca5a5" }}>
-                    {remainingUses > 0 ? `${remainingUses} free generation${remainingUses === 1 ? "" : "s"} left` : "Free tier exhausted"}
+                <span style={{ fontSize: "14px" }}>
+                    {remainingUses === 0 ? "⚡" : "🎯"}
+                </span>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "white" }}>
+                    {remainingUses === 0
+                        ? "Upgrade for unlimited"
+                        : `${remainingUses} free generation${remainingUses === 1 ? "" : "s"} remaining`}
                 </span>
             </div>
 

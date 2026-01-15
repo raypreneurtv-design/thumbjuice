@@ -1,11 +1,7 @@
-import Link from "next/link";
-import { Metadata } from "next";
-import { CheckCircle } from "lucide-react";
+"use client";
 
-export const metadata: Metadata = {
-    title: "Pricing | ThumbJuice - AI Thumbnail Generator",
-    description: "Choose the perfect plan for your YouTube thumbnail needs. Start for free, upgrade anytime.",
-};
+import Link from "next/link";
+import { CheckCircle, Sparkles, Palette } from "lucide-react";
 
 export default function PricingPage() {
     return (
@@ -41,10 +37,11 @@ export default function PricingPage() {
                         </span>
                     </Link>
                     <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-                        <Link href="/" style={{ fontSize: "14px", color: "#888", textDecoration: "none" }}>Home</Link>
-                        <Link href="/#generate" style={{ fontSize: "14px", color: "#888", textDecoration: "none" }}>Generate</Link>
-                        <Link href="/about" style={{ fontSize: "14px", color: "#888", textDecoration: "none" }}>About</Link>
-                        <Link href="/pricing" style={{ fontSize: "14px", color: "#a855f7", textDecoration: "none" }}>Pricing</Link>
+                        <Link href="/" style={{ fontSize: "14px", color: "#888", textDecoration: "none", transition: "color 0.2s ease" }}>Home</Link>
+                        <Link href="/#generate" style={{ fontSize: "14px", color: "#888", textDecoration: "none", transition: "color 0.2s ease" }}>Generate</Link>
+                        <Link href="/pricing" style={{ fontSize: "14px", color: "#a855f7", textDecoration: "none", transition: "color 0.2s ease" }}>Pricing</Link>
+                        <Link href="#custom-services" style={{ fontSize: "14px", color: "#888", textDecoration: "none", transition: "color 0.2s ease" }}>Services</Link>
+                        <Link href="/about" style={{ fontSize: "14px", color: "#888", textDecoration: "none", transition: "color 0.2s ease" }}>About</Link>
                     </div>
                 </div>
             </nav>
@@ -99,7 +96,7 @@ export default function PricingPage() {
                         </div>
 
                         <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
-                            {["Unlimited thumbnails", "FLUX Schnell (fast)", "1280x720 resolution", "PNG/JPG downloads", "7-day history"].map((feature) => (
+                            {["Unlimited thumbnails", "FLUX Schnell (fast)", "1280x720 resolution", "PNG/JPG downloads", "7-day history", "📧 Email support"].map((feature) => (
                                 <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: "#ccc" }}>
                                     <CheckCircle size={18} style={{ color: "#666" }} />
                                     {feature}
@@ -185,7 +182,8 @@ export default function PricingPage() {
                                 "Style customization",
                                 "Trend-based templates",
                                 "Batch generation (10x)",
-                                "Priority support",
+                                "🎨 Priority custom gig requests",
+                                "💬 Priority support",
                             ].map((feature, i) => (
                                 <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: i === 0 ? "#a855f7" : "#ccc" }}>
                                     <CheckCircle size={18} style={{ color: "#a855f7" }} />
@@ -216,6 +214,7 @@ export default function PricingPage() {
                     {/* MAX CARD */}
                     <div
                         style={{
+                            position: "relative",
                             background: "#1a1a2e",
                             borderRadius: "16px",
                             padding: "40px",
@@ -224,6 +223,26 @@ export default function PricingPage() {
                             transition: "transform 0.3s ease",
                         }}
                     >
+                        {/* Best Value Badge */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "-12px",
+                                right: "24px",
+                                background: "linear-gradient(135deg, #ffd700, #f59e0b)",
+                                padding: "6px 16px",
+                                borderRadius: "9999px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                color: "#0a0a0a",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.5px",
+                                boxShadow: "0 4px 12px rgba(255, 215, 0, 0.4)",
+                            }}
+                        >
+                            Best Value
+                        </div>
+
                         <h3 style={{ fontSize: "20px", fontWeight: 600, color: "white", marginBottom: "4px" }}>Max</h3>
                         <p style={{ fontSize: "14px", color: "#888", marginBottom: "24px" }}>For enterprises & agencies</p>
 
@@ -235,8 +254,8 @@ export default function PricingPage() {
                         <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
                             {[
                                 "Everything in Pro, plus:",
-                                "Custom designs by real designers",
-                                "1 custom thumbnail/week",
+                                "🎨 1 custom thumbnail/week by our design team",
+                                "📞 Monthly 1-on-1 design review",
                                 "Personal style training",
                                 "API access (500 req/mo)",
                                 "Bulk generation (50x)",
@@ -272,11 +291,178 @@ export default function PricingPage() {
             </section>
 
             {/* Footer Text */}
-            <section style={{ paddingBottom: "80px", textAlign: "center" }}>
+            <section style={{ paddingBottom: "40px", textAlign: "center" }}>
                 <p style={{ color: "#666", fontSize: "14px" }}>
                     Cancel anytime. No questions asked. 14-day money-back guarantee.
                 </p>
             </section>
+
+            {/* Custom Services Section */}
+            <section id="custom-services" style={{ padding: "80px 0", background: "linear-gradient(180deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%)" }}>
+                <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 24px" }}>
+                    {/* Section Header */}
+                    <div style={{ textAlign: "center", marginBottom: "48px" }}>
+                        <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 700, color: "white", marginBottom: "16px" }}>
+                            Need Something <span style={{ background: "linear-gradient(135deg, #a855f7, #ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Custom</span>?
+                        </h2>
+                        <p style={{ color: "#888", fontSize: "16px", maxWidth: "600px", margin: "0 auto" }}>
+                            Our design team can take your thumbnails to the next level with professional refinement and custom designs.
+                        </p>
+                    </div>
+
+                    {/* Service Cards Grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }}>
+                        {/* AI Refinement Card */}
+                        <div
+                            style={{
+                                background: "#1a1a2e",
+                                borderRadius: "16px",
+                                padding: "40px",
+                                border: "1px solid rgba(139, 92, 246, 0.2)",
+                                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                                <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(139, 92, 246, 0.15)" }}>
+                                    <Sparkles size={24} style={{ color: "#a78bfa" }} />
+                                </div>
+                                <h3 style={{ fontSize: "24px", fontWeight: 600, color: "white" }}>AI Refinement</h3>
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <span style={{ fontSize: "40px", fontWeight: 700, color: "#a78bfa" }}>$25</span>
+                            </div>
+
+                            <p style={{ color: "#a1a1aa", fontSize: "15px", marginBottom: "24px", lineHeight: 1.6 }}>
+                                We'll take your AI-generated thumbnail and perfect it in Photoshop
+                            </p>
+
+                            <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
+                                {[
+                                    "Minor text adjustments",
+                                    "Color correction",
+                                    "Polish & finishing touches",
+                                    "24-hour turnaround",
+                                ].map((feature) => (
+                                    <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: "#ccc" }}>
+                                        <CheckCircle size={16} style={{ color: "#a78bfa" }} />
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <a
+                                href="mailto:thumbnails@thumbjuice.com?subject=ThumbJuice - AI Refinement Request"
+                                style={{
+                                    display: "block",
+                                    width: "100%",
+                                    padding: "14px",
+                                    borderRadius: "8px",
+                                    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+                                    border: "none",
+                                    color: "white",
+                                    fontSize: "14px",
+                                    fontWeight: 600,
+                                    textAlign: "center",
+                                    textDecoration: "none",
+                                    cursor: "pointer",
+                                    boxShadow: "0 4px 20px rgba(139, 92, 246, 0.3)",
+                                    transition: "all 0.2s ease",
+                                }}
+                            >
+                                Request Refinement
+                            </a>
+                        </div>
+
+                        {/* Full Custom Design Card */}
+                        <div
+                            style={{
+                                background: "#1a1a2e",
+                                borderRadius: "16px",
+                                padding: "40px",
+                                border: "1px solid rgba(236, 72, 153, 0.2)",
+                                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                                <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(236, 72, 153, 0.15)" }}>
+                                    <Palette size={24} style={{ color: "#ec4899" }} />
+                                </div>
+                                <h3 style={{ fontSize: "24px", fontWeight: 600, color: "white" }}>Full Custom Design</h3>
+                            </div>
+
+                            <div style={{ marginBottom: "20px" }}>
+                                <span style={{ fontSize: "40px", fontWeight: 700, color: "#ec4899" }}>$50-75</span>
+                            </div>
+
+                            <p style={{ color: "#a1a1aa", fontSize: "15px", marginBottom: "24px", lineHeight: 1.6 }}>
+                                Professional thumbnail designed from scratch by our team
+                            </p>
+
+                            <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
+                                {[
+                                    "Custom design based on your concept",
+                                    "Unlimited revisions (within reason)",
+                                    "Brand-consistent styling",
+                                    "48-hour turnaround",
+                                ].map((feature) => (
+                                    <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: "#ccc" }}>
+                                        <CheckCircle size={16} style={{ color: "#ec4899" }} />
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <a
+                                href="mailto:thumbnails@thumbjuice.com?subject=ThumbJuice - Custom Design Request"
+                                style={{
+                                    display: "block",
+                                    width: "100%",
+                                    padding: "14px",
+                                    borderRadius: "8px",
+                                    background: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
+                                    border: "none",
+                                    color: "white",
+                                    fontSize: "14px",
+                                    fontWeight: 600,
+                                    textAlign: "center",
+                                    textDecoration: "none",
+                                    cursor: "pointer",
+                                    boxShadow: "0 4px 20px rgba(236, 72, 153, 0.3)",
+                                    transition: "all 0.2s ease",
+                                }}
+                            >
+                                Request Custom Design
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Bottom CTA */}
+                    <div style={{ textAlign: "center", marginTop: "48px" }}>
+                        <p style={{ color: "#888", fontSize: "16px" }}>
+                            Have questions? Email us at{" "}
+                            <a
+                                href="mailto:thumbnails@thumbjuice.com"
+                                style={{ color: "#a78bfa", textDecoration: "none", fontWeight: 500 }}
+                            >
+                                thumbnails@thumbjuice.com
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Responsive Styles */}
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    section > div[style*="grid-template-columns: repeat(3"] {
+                        grid-template-columns: 1fr !important;
+                    }
+                    section > div[style*="grid-template-columns: repeat(2"] {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
