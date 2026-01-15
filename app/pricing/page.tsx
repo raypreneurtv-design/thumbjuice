@@ -1,9 +1,49 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle, Sparkles, Palette } from "lucide-react";
+import { CheckCircle, Sparkles, Palette, Loader2 } from "lucide-react";
+
+// Real Stripe Price IDs for subscription tiers
+const PRICE_IDS = {
+    basic: "price_1SpyE7KcA8gbK5THC4tU78pj",
+    pro: "price_1SpyTSKcA8gbK5THW6zEogPI",
+    max: "price_1SpyU1KcA8gbK5THtOnMDJcc",
+};
+
+type Tier = keyof typeof PRICE_IDS;
 
 export default function PricingPage() {
+    const [loadingTier, setLoadingTier] = useState<Tier | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubscribe = async (tier: Tier) => {
+        setLoadingTier(tier);
+        setError(null);
+
+        try {
+            const response = await fetch("/api/create-checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ priceId: PRICE_IDS[tier] }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to create checkout session");
+            }
+
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (err) {
+            console.error("Checkout error:", err);
+            setError(err instanceof Error ? err.message : "Something went wrong");
+            setLoadingTier(null);
+        }
+    };
+
     return (
         <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "white", fontFamily: "Inter, system-ui, sans-serif" }}>
             {/* Navbar */}
@@ -57,11 +97,29 @@ export default function PricingPage() {
                         fontWeight: 700,
                         color: "white",
                         letterSpacing: "-1px",
-                        marginBottom: "60px",
+                        marginBottom: "24px",
                     }}
                 >
                     Choose the right plan for you
                 </h1>
+
+                {/* Error Message */}
+                {error && (
+                    <div
+                        style={{
+                            maxWidth: "500px",
+                            margin: "0 auto 24px",
+                            padding: "12px 16px",
+                            borderRadius: "8px",
+                            background: "rgba(239, 68, 68, 0.15)",
+                            border: "1px solid rgba(239, 68, 68, 0.3)",
+                            color: "#fca5a5",
+                            fontSize: "14px",
+                        }}
+                    >
+                        {error}
+                    </div>
+                )}
             </section>
 
             {/* Pricing Cards */}
@@ -105,6 +163,8 @@ export default function PricingPage() {
                         </ul>
 
                         <button
+                            onClick={() => handleSubscribe("basic")}
+                            disabled={loadingTier !== null}
                             style={{
                                 width: "100%",
                                 padding: "12px",
@@ -114,11 +174,23 @@ export default function PricingPage() {
                                 color: "white",
                                 fontSize: "14px",
                                 fontWeight: 500,
-                                cursor: "pointer",
+                                cursor: loadingTier !== null ? "not-allowed" : "pointer",
                                 transition: "background 0.2s ease",
+                                opacity: loadingTier !== null && loadingTier !== "basic" ? 0.5 : 1,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "8px",
                             }}
                         >
-                            Subscribe
+                            {loadingTier === "basic" ? (
+                                <>
+                                    <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+                                    Processing...
+                                </>
+                            ) : (
+                                "Subscribe"
+                            )}
                         </button>
                     </div>
 
@@ -193,6 +265,8 @@ export default function PricingPage() {
                         </ul>
 
                         <button
+                            onClick={() => handleSubscribe("pro")}
+                            disabled={loadingTier !== null}
                             style={{
                                 width: "100%",
                                 padding: "14px",
@@ -202,12 +276,24 @@ export default function PricingPage() {
                                 color: "white",
                                 fontSize: "14px",
                                 fontWeight: 600,
-                                cursor: "pointer",
+                                cursor: loadingTier !== null ? "not-allowed" : "pointer",
                                 boxShadow: "0 4px 20px rgba(168, 85, 247, 0.4)",
                                 transition: "filter 0.2s ease",
+                                opacity: loadingTier !== null && loadingTier !== "pro" ? 0.5 : 1,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "8px",
                             }}
                         >
-                            Subscribe
+                            {loadingTier === "pro" ? (
+                                <>
+                                    <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+                                    Processing...
+                                </>
+                            ) : (
+                                "Subscribe"
+                            )}
                         </button>
                     </div>
 
@@ -271,6 +357,8 @@ export default function PricingPage() {
                         </ul>
 
                         <button
+                            onClick={() => handleSubscribe("max")}
+                            disabled={loadingTier !== null}
                             style={{
                                 width: "100%",
                                 padding: "12px",
@@ -280,11 +368,23 @@ export default function PricingPage() {
                                 color: "#0a0a0a",
                                 fontSize: "14px",
                                 fontWeight: 600,
-                                cursor: "pointer",
+                                cursor: loadingTier !== null ? "not-allowed" : "pointer",
                                 transition: "background 0.2s ease",
+                                opacity: loadingTier !== null && loadingTier !== "max" ? 0.5 : 1,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "8px",
                             }}
                         >
-                            Subscribe
+                            {loadingTier === "max" ? (
+                                <>
+                                    <Loader2 size={16} style={{ animation: "spin 1s linear infinite", color: "#0a0a0a" }} />
+                                    Processing...
+                                </>
+                            ) : (
+                                "Subscribe"
+                            )}
                         </button>
                     </div>
                 </div>
@@ -293,7 +393,7 @@ export default function PricingPage() {
             {/* Footer Text */}
             <section style={{ paddingBottom: "40px", textAlign: "center" }}>
                 <p style={{ color: "#666", fontSize: "14px" }}>
-                    Cancel anytime. No questions asked. 14-day money-back guarantee.
+                    All plans include a 7-day money-back guarantee. Cancel anytime.
                 </p>
             </section>
 
@@ -302,71 +402,58 @@ export default function PricingPage() {
                 <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 24px" }}>
                     {/* Section Header */}
                     <div style={{ textAlign: "center", marginBottom: "48px" }}>
-                        <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 700, color: "white", marginBottom: "16px" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderRadius: "9999px", background: "rgba(139, 92, 246, 0.15)", marginBottom: "16px" }}>
+                            <Sparkles size={16} style={{ color: "#a78bfa" }} />
+                            <span style={{ fontSize: "12px", fontWeight: 600, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "1px" }}>Hybrid Model</span>
+                        </div>
+                        <h2 style={{ fontSize: "clamp(28px, 3vw, 40px)", fontWeight: 700, color: "white", marginBottom: "12px" }}>
                             Need Something <span style={{ background: "linear-gradient(135deg, #a855f7, #ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Custom</span>?
                         </h2>
-                        <p style={{ color: "#888", fontSize: "16px", maxWidth: "600px", margin: "0 auto" }}>
-                            Our design team can take your thumbnails to the next level with professional refinement and custom designs.
+                        <p style={{ fontSize: "16px", color: "#888", maxWidth: "600px", margin: "0 auto" }}>
+                            Our design team can refine AI outputs or create fully custom thumbnails for your brand.
                         </p>
                     </div>
 
-                    {/* Service Cards Grid */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }}>
-                        {/* AI Refinement Card */}
+                    {/* Service Cards */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px", maxWidth: "800px", margin: "0 auto" }}>
+                        {/* AI Refinement */}
                         <div
                             style={{
                                 background: "#1a1a2e",
                                 borderRadius: "16px",
-                                padding: "40px",
+                                padding: "32px",
                                 border: "1px solid rgba(139, 92, 246, 0.2)",
-                                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                                transition: "all 0.3s ease",
                             }}
                         >
-                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                                <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(139, 92, 246, 0.15)" }}>
-                                    <Sparkles size={24} style={{ color: "#a78bfa" }} />
-                                </div>
-                                <h3 style={{ fontSize: "24px", fontWeight: 600, color: "white" }}>AI Refinement</h3>
+                            <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(139, 92, 246, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+                                <Sparkles size={24} style={{ color: "#a78bfa" }} />
                             </div>
-
-                            <div style={{ marginBottom: "20px" }}>
-                                <span style={{ fontSize: "40px", fontWeight: 700, color: "#a78bfa" }}>$25</span>
-                            </div>
-
-                            <p style={{ color: "#a1a1aa", fontSize: "15px", marginBottom: "24px", lineHeight: 1.6 }}>
-                                We'll take your AI-generated thumbnail and perfect it in Photoshop
-                            </p>
-
-                            <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
-                                {[
-                                    "Minor text adjustments",
-                                    "Color correction",
-                                    "Polish & finishing touches",
-                                    "24-hour turnaround",
-                                ].map((feature) => (
-                                    <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: "#ccc" }}>
+                            <h3 style={{ fontSize: "20px", fontWeight: 600, color: "white", marginBottom: "8px" }}>AI Refinement</h3>
+                            <p style={{ fontSize: "28px", fontWeight: 700, color: "#a78bfa", marginBottom: "16px" }}>$25<span style={{ fontSize: "14px", fontWeight: 400, color: "#666" }}>/thumbnail</span></p>
+                            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px 0" }}>
+                                {["Take any AI-generated thumbnail", "Professional touch-ups", "Color correction & enhancement", "Text refinement", "24-hour turnaround"].map((item) => (
+                                    <li key={item} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px", fontSize: "14px", color: "#a1a1aa" }}>
                                         <CheckCircle size={16} style={{ color: "#a78bfa" }} />
-                                        {feature}
+                                        {item}
                                     </li>
                                 ))}
                             </ul>
-
                             <a
-                                href="mailto:thumbnails@thumbjuice.com?subject=ThumbJuice - AI Refinement Request"
+                                href="mailto:services@thumbjuice.com?subject=ThumbJuice%20-%20AI%20Refinement%20Request"
                                 style={{
                                     display: "block",
                                     width: "100%",
-                                    padding: "14px",
+                                    padding: "12px",
                                     borderRadius: "8px",
-                                    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
-                                    border: "none",
-                                    color: "white",
+                                    background: "linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)",
+                                    border: "1px solid rgba(139, 92, 246, 0.3)",
+                                    color: "#a78bfa",
                                     fontSize: "14px",
                                     fontWeight: 600,
                                     textAlign: "center",
                                     textDecoration: "none",
                                     cursor: "pointer",
-                                    boxShadow: "0 4px 20px rgba(139, 92, 246, 0.3)",
                                     transition: "all 0.2s ease",
                                 }}
                             >
@@ -374,61 +461,44 @@ export default function PricingPage() {
                             </a>
                         </div>
 
-                        {/* Full Custom Design Card */}
+                        {/* Full Custom Design */}
                         <div
                             style={{
                                 background: "#1a1a2e",
                                 borderRadius: "16px",
-                                padding: "40px",
+                                padding: "32px",
                                 border: "1px solid rgba(236, 72, 153, 0.2)",
-                                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                                transition: "all 0.3s ease",
                             }}
                         >
-                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                                <div style={{ padding: "10px", borderRadius: "12px", background: "rgba(236, 72, 153, 0.15)" }}>
-                                    <Palette size={24} style={{ color: "#ec4899" }} />
-                                </div>
-                                <h3 style={{ fontSize: "24px", fontWeight: 600, color: "white" }}>Full Custom Design</h3>
+                            <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(236, 72, 153, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+                                <Palette size={24} style={{ color: "#f472b6" }} />
                             </div>
-
-                            <div style={{ marginBottom: "20px" }}>
-                                <span style={{ fontSize: "40px", fontWeight: 700, color: "#ec4899" }}>$50-75</span>
-                            </div>
-
-                            <p style={{ color: "#a1a1aa", fontSize: "15px", marginBottom: "24px", lineHeight: 1.6 }}>
-                                Professional thumbnail designed from scratch by our team
-                            </p>
-
-                            <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: "32px" }}>
-                                {[
-                                    "Custom design based on your concept",
-                                    "Unlimited revisions (within reason)",
-                                    "Brand-consistent styling",
-                                    "48-hour turnaround",
-                                ].map((feature) => (
-                                    <li key={feature} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", fontSize: "14px", color: "#ccc" }}>
-                                        <CheckCircle size={16} style={{ color: "#ec4899" }} />
-                                        {feature}
+                            <h3 style={{ fontSize: "20px", fontWeight: 600, color: "white", marginBottom: "8px" }}>Full Custom Design</h3>
+                            <p style={{ fontSize: "28px", fontWeight: 700, color: "#f472b6", marginBottom: "16px" }}>$50-75<span style={{ fontSize: "14px", fontWeight: 400, color: "#666" }}>/thumbnail</span></p>
+                            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px 0" }}>
+                                {["100% custom design from scratch", "Unlimited revisions", "Multiple concept options", "Source files included", "48-hour turnaround"].map((item) => (
+                                    <li key={item} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px", fontSize: "14px", color: "#a1a1aa" }}>
+                                        <CheckCircle size={16} style={{ color: "#f472b6" }} />
+                                        {item}
                                     </li>
                                 ))}
                             </ul>
-
                             <a
-                                href="mailto:thumbnails@thumbjuice.com?subject=ThumbJuice - Custom Design Request"
+                                href="mailto:services@thumbjuice.com?subject=ThumbJuice%20-%20Custom%20Design%20Request"
                                 style={{
                                     display: "block",
                                     width: "100%",
-                                    padding: "14px",
+                                    padding: "12px",
                                     borderRadius: "8px",
-                                    background: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
-                                    border: "none",
-                                    color: "white",
+                                    background: "linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)",
+                                    border: "1px solid rgba(236, 72, 153, 0.3)",
+                                    color: "#f472b6",
                                     fontSize: "14px",
                                     fontWeight: 600,
                                     textAlign: "center",
                                     textDecoration: "none",
                                     cursor: "pointer",
-                                    boxShadow: "0 4px 20px rgba(236, 72, 153, 0.3)",
                                     transition: "all 0.2s ease",
                                 }}
                             >
@@ -439,13 +509,10 @@ export default function PricingPage() {
 
                     {/* Bottom CTA */}
                     <div style={{ textAlign: "center", marginTop: "48px" }}>
-                        <p style={{ color: "#888", fontSize: "16px" }}>
-                            Have questions? Email us at{" "}
-                            <a
-                                href="mailto:thumbnails@thumbjuice.com"
-                                style={{ color: "#a78bfa", textDecoration: "none", fontWeight: 500 }}
-                            >
-                                thumbnails@thumbjuice.com
+                        <p style={{ fontSize: "14px", color: "#666" }}>
+                            Questions? Email us at{" "}
+                            <a href="mailto:services@thumbjuice.com" style={{ color: "#a78bfa", textDecoration: "none" }}>
+                                services@thumbjuice.com
                             </a>
                         </p>
                     </div>
@@ -454,6 +521,10 @@ export default function PricingPage() {
 
             {/* Responsive Styles */}
             <style jsx>{`
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
                 @media (max-width: 768px) {
                     section > div[style*="grid-template-columns: repeat(3"] {
                         grid-template-columns: 1fr !important;
