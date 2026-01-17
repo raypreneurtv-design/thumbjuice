@@ -482,6 +482,7 @@ export function Hero() {
 
                             {/* Generator Card */}
                             <div
+                                className="generator-card"
                                 style={{
                                     background: "rgba(24, 24, 27, 0.8)",
                                     border: "1px solid rgba(139, 92, 246, 0.2)",
@@ -492,13 +493,14 @@ export function Hero() {
                             >
                                 {/* Step 1 */}
                                 <div style={{ marginBottom: "40px" }}>
-                                    <h3 style={{ fontSize: "11px", fontWeight: 600, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
+                                    <h3 className="step-heading" style={{ fontSize: "11px", fontWeight: 600, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
                                         Step 1 — Select Niche
                                     </h3>
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+                                    <div className="niche-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
                                         {niches.map((n) => (
                                             <div
                                                 key={n.id}
+                                                className="niche-card-item"
                                                 onClick={() => setNiche(n.id)}
                                                 onMouseEnter={() => n.id === "commentary" && setIsCommentaryHovered(true)}
                                                 onMouseLeave={() => n.id === "commentary" && setIsCommentaryHovered(false)}
@@ -561,7 +563,7 @@ export function Hero() {
 
                                 {/* Step 2 */}
                                 <div style={{ marginBottom: "40px", opacity: niche ? 1 : 0.4, pointerEvents: niche ? "auto" : "none", transition: "opacity 0.3s ease" }}>
-                                    <h3 style={{ fontSize: "11px", fontWeight: 600, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
+                                    <h3 className="step-heading" style={{ fontSize: "11px", fontWeight: 600, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px" }}>
                                         Step 2 — Describe Your Video
                                     </h3>
                                     <textarea
@@ -583,7 +585,7 @@ export function Hero() {
                                     />
 
                                     {/* Aspect Ratio with Preview Canvas */}
-                                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", marginTop: "24px", gap: "24px" }}>
+                                    <div className="aspect-ratio-container" style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", marginTop: "24px", gap: "24px" }}>
                                         <div>
                                             <label style={{ display: "block", fontSize: "11px", fontWeight: 600, color: "#71717a", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
                                                 Aspect Ratio
@@ -631,6 +633,7 @@ export function Hero() {
 
                                         {/* Generate Button */}
                                         <button
+                                            className="generate-btn"
                                             onClick={handleGenerate}
                                             disabled={!prompt || isGenerating}
                                             style={{
@@ -988,6 +991,7 @@ export function Hero() {
 
             {/* Remaining Uses Badge */}
             <div
+                className="usage-badge"
                 style={{
                     position: "fixed",
                     top: "80px",
