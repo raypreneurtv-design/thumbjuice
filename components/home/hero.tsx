@@ -15,13 +15,60 @@ import {
     Sparkles,
     CheckCircle,
 } from "lucide-react";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { getRemainingUses, hasUsesRemaining, incrementUses, isLastFreeUse } from "@/lib/usageTracking";
 import { AuthModal } from "@/components/AuthModal";
 
 type Niche = "gaming" | "commentary" | "finance";
 type AspectRatio = "16:9" | "1:1" | "9:16";
 
+// Rotating words for the hero headline
+const rotatingWords = ["Videos.", "Posts.", "Content.", "Brand."];
+
+function RotatingWord() {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isVisible, setIsVisible] = useState(true);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // Start fade out
+            setIsVisible(false);
+
+            // After fade out completes, change word and fade in
+            setTimeout(() => {
+                setCurrentIndex((prev) => (prev + 1) % rotatingWords.length);
+                setIsVisible(true);
+            }, 400); // Match the CSS transition duration
+        }, 2500); // Display each word for 2.5 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <span
+            className="rotating-word"
+            style={{
+                display: "inline-block",
+                padding: "4px 16px",
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)",
+                color: "white",
+                transform: "rotate(-1deg)",
+                WebkitTextFillColor: "white",
+                minWidth: "180px", // Reserve space for longest word to prevent layout shift
+                textAlign: "center",
+                opacity: isVisible ? 1 : 0,
+                transition: "opacity 0.4s ease-in-out",
+            }}
+        >
+            {rotatingWords[currentIndex]}
+        </span>
+    );
+}
+
+
 export function Hero() {
+    const { isSignedIn, user } = useUser();
     const [niche, setNiche] = useState<Niche | null>(null);
     const [prompt, setPrompt] = useState("");
     const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
@@ -215,7 +262,7 @@ export function Hero() {
                     </Link>
 
                     {/* Nav Links */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+                    <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
                         {[
                             { label: "Home", href: "/" },
                             { label: "Generate", href: "#generate" },
@@ -234,29 +281,50 @@ export function Hero() {
                         ))}
                     </div>
 
-                    {/* CTA */}
-                    <button
-                        style={{
-                            height: "36px",
-                            padding: "0 20px",
-                            borderRadius: "9999px",
-                            background: "#8b5cf6",
-                            color: "white",
-                            fontSize: "14px",
-                            fontWeight: 500,
-                            border: "none",
-                            cursor: "pointer",
-                            boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
-                        }}
-                    >
-                        Get Started
-                    </button>
+                    {/* Auth CTA */}
+                    {isSignedIn ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <span style={{ fontSize: "14px", color: "#a1a1aa" }}>
+                                {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0]}
+                            </span>
+                            <UserButton
+                                afterSignOutUrl="/"
+                                appearance={{
+                                    elements: {
+                                        avatarBox: {
+                                            width: "36px",
+                                            height: "36px",
+                                        },
+                                    },
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <SignInButton mode="modal">
+                            <button
+                                style={{
+                                    height: "36px",
+                                    padding: "0 20px",
+                                    borderRadius: "9999px",
+                                    background: "#8b5cf6",
+                                    color: "white",
+                                    fontSize: "14px",
+                                    fontWeight: 500,
+                                    border: "none",
+                                    cursor: "pointer",
+                                    boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
+                                }}
+                            >
+                                Sign In
+                            </button>
+                        </SignInButton>
+                    )}
                 </div>
             </nav>
 
             {/* ===== HERO SECTION ===== */}
-            <section style={{ position: "relative", paddingTop: "140px", paddingBottom: "80px" }}>
-                <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
+            <section className="hero-section" style={{ position: "relative" }}>
+                <div className="hero-container">
                     {/* NEW Banner */}
                     <div style={{ display: "flex", justifyContent: "center", marginBottom: "40px" }}>
                         <Link
@@ -294,7 +362,7 @@ export function Hero() {
 
                     {/* Headline */}
                     <div style={{ textAlign: "center", marginBottom: "32px" }}>
-                        <h1 style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 700, lineHeight: 1.1, marginBottom: "24px" }}>
+                        <h1 className="hero-heading">
                             <span style={{ background: "linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                                 AI Thumbnail Generator
                             </span>
@@ -302,27 +370,15 @@ export function Hero() {
                             <span style={{ background: "linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                                 for your{" "}
                             </span>
-                            <span
-                                style={{
-                                    display: "inline-block",
-                                    padding: "4px 16px",
-                                    borderRadius: "8px",
-                                    background: "linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)",
-                                    color: "white",
-                                    transform: "rotate(-1deg)",
-                                    WebkitTextFillColor: "white",
-                                }}
-                            >
-                                Videos.
-                            </span>
+                            <RotatingWord />
                         </h1>
-                        <p style={{ fontSize: "18px", color: "#71717a", maxWidth: "600px", margin: "0 auto" }}>
+                        <p className="hero-subtitle">
                             Stop wasting hours on design. Get high-converting thumbnails in seconds with our advanced AI.
                         </p>
                     </div>
 
                     {/* CTA Buttons */}
-                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px", marginBottom: "48px" }}>
+                    <div className="hero-cta-buttons">
                         <Link href="#generate" style={{ textDecoration: "none" }}>
                             <button
                                 style={{
@@ -363,7 +419,7 @@ export function Hero() {
                     </div>
 
                     {/* Feature Checkmarks */}
-                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "32px", fontSize: "14px", color: "#71717a" }}>
+                    <div className="hero-features">
                         {["No design skills needed", "Fast generation", "High CTR templates"].map((f) => (
                             <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                 <Check style={{ width: "16px", height: "16px", color: "#8b5cf6" }} />
