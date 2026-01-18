@@ -13,6 +13,7 @@
     "@clerk/themes": "^2.4.48",
     "@radix-ui/react-slot": "^1.2.4",
     "@stripe/stripe-js": "^8.6.1",
+    "@supabase/supabase-js": "^2.90.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
@@ -22,6 +23,7 @@
     "react-dom": "19.2.3",
     "replicate": "^1.4.0",
     "stripe": "^20.1.2",
+    "svix": "^1.84.1",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

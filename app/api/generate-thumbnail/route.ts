@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
+import { auth } from "@clerk/nextjs/server";
+import { getUserSubscriptionStatus, incrementThumbnailCount, createUser, getUserByClerkId } from "@/lib/supabase-helpers";
 
 // Niche-specific prompt templates
 const PROMPT_TEMPLATES: Record<string, (description: string) => string> = {
@@ -31,6 +33,53 @@ export async function POST(request: NextRequest) {
                 { success: false, error: "Replicate API token not configured" },
                 { status: 500 }
             );
+        }
+
+        // Check user authentication and subscription status
+        const { userId } = await auth();
+        let canGenerate = true;
+        let isSubscribed = false;
+        let thumbnailCount = 0;
+
+        if (userId) {
+            // User is logged in - check their subscription status in Supabase
+            console.log("[ThumbJuice] Checking subscription for user:", userId);
+
+            // Make sure user exists in Supabase (in case webhook didn't fire)
+            let user = await getUserByClerkId(userId);
+            if (!user) {
+                console.log("[ThumbJuice] User not found in Supabase, creating...");
+                // We don't have their email here, so we'll use a placeholder
+                // The Clerk webhook will update it later
+                await createUser(userId, "");
+            }
+
+            const status = await getUserSubscriptionStatus(userId);
+            isSubscribed = status.isSubscribed;
+            canGenerate = status.canGenerate;
+            thumbnailCount = status.thumbnailCount;
+
+            console.log("[ThumbJuice] User status:", {
+                isSubscribed,
+                tier: status.tier,
+                thumbnailCount,
+                canGenerate,
+            });
+
+            if (!canGenerate) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "You've used all 3 free generations. Upgrade to a paid plan for unlimited thumbnails!",
+                        limitReached: true,
+                        thumbnailCount,
+                    },
+                    { status: 403 }
+                );
+            }
+        } else {
+            // Anonymous user - they'll use localStorage tracking on the client
+            console.log("[ThumbJuice] Anonymous user - using client-side tracking");
         }
 
         // Initialize Replicate client
@@ -109,11 +158,24 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Increment thumbnail count for logged-in users
+        if (userId) {
+            try {
+                const newCount = await incrementThumbnailCount(userId);
+                console.log("[ThumbJuice] Incremented thumbnail count to:", newCount);
+            } catch (error) {
+                console.error("[ThumbJuice] Failed to increment thumbnail count:", error);
+                // Don't fail the request, just log the error
+            }
+        }
+
         console.log("[ThumbJuice] Final image URL type:", imageUrl.substring(0, 50) + "...");
 
         return NextResponse.json({
             success: true,
             imageUrl: imageUrl,
+            isSubscribed,
+            thumbnailCount: userId ? thumbnailCount + 1 : undefined,
         });
     } catch (error: any) {
         console.error("[ThumbJuice] Generation error:", error);
