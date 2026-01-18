@@ -14,6 +14,8 @@ import {
     AlertCircle,
     Sparkles,
     CheckCircle,
+    Menu,
+    X,
 } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { getRemainingUses, hasUsesRemaining, incrementUses, isLastFreeUse } from "@/lib/usageTracking";
@@ -85,6 +87,9 @@ export function Hero() {
 
     // Tab state for Generate/Pricing
     const [activeTab, setActiveTab] = useState<"generate" | "pricing">("generate");
+
+    // Mobile menu state
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Commentary slideshow state
     const [commentarySlideIndex, setCommentarySlideIndex] = useState(0);
@@ -243,6 +248,7 @@ export function Hero() {
                 }}
             >
                 <div
+                    className="nav-container"
                     style={{
                         maxWidth: "1200px",
                         margin: "0 auto",
@@ -261,7 +267,7 @@ export function Hero() {
                         </span>
                     </Link>
 
-                    {/* Nav Links */}
+                    {/* Desktop Nav Links */}
                     <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
                         {[
                             { label: "Home", href: "/" },
@@ -281,46 +287,164 @@ export function Hero() {
                         ))}
                     </div>
 
-                    {/* Auth CTA */}
-                    {isSignedIn ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <span style={{ fontSize: "14px", color: "#a1a1aa" }}>
-                                {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0]}
-                            </span>
-                            <UserButton
-                                afterSignOutUrl="/"
-                                appearance={{
-                                    elements: {
-                                        avatarBox: {
-                                            width: "36px",
-                                            height: "36px",
+                    {/* Mobile Hamburger Button */}
+                    <button
+                        className="mobile-menu-btn"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        style={{
+                            display: "none",
+                            background: "transparent",
+                            border: "none",
+                            color: "white",
+                            cursor: "pointer",
+                            padding: "8px",
+                            borderRadius: "8px",
+                        }}
+                        aria-label="Toggle menu"
+                    >
+                        {isMobileMenuOpen ? (
+                            <X style={{ width: "24px", height: "24px" }} />
+                        ) : (
+                            <Menu style={{ width: "24px", height: "24px" }} />
+                        )}
+                    </button>
+
+                    {/* Desktop Auth CTA */}
+                    <div className="desktop-auth">
+                        {isSignedIn ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <span style={{ fontSize: "14px", color: "#a1a1aa" }}>
+                                    {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0]}
+                                </span>
+                                <UserButton
+                                    afterSignOutUrl="/"
+                                    appearance={{
+                                        elements: {
+                                            avatarBox: {
+                                                width: "36px",
+                                                height: "36px",
+                                            },
                                         },
-                                    },
-                                }}
-                            />
-                        </div>
-                    ) : (
-                        <SignInButton mode="modal">
-                            <button
-                                style={{
-                                    height: "36px",
-                                    padding: "0 20px",
-                                    borderRadius: "9999px",
-                                    background: "#8b5cf6",
-                                    color: "white",
-                                    fontSize: "14px",
-                                    fontWeight: 500,
-                                    border: "none",
-                                    cursor: "pointer",
-                                    boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
-                                }}
-                            >
-                                Sign In
-                            </button>
-                        </SignInButton>
-                    )}
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <SignInButton mode="modal">
+                                <button
+                                    style={{
+                                        height: "36px",
+                                        padding: "0 20px",
+                                        borderRadius: "9999px",
+                                        background: "#8b5cf6",
+                                        color: "white",
+                                        fontSize: "14px",
+                                        fontWeight: 500,
+                                        border: "none",
+                                        cursor: "pointer",
+                                        boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)",
+                                    }}
+                                >
+                                    Sign In
+                                </button>
+                            </SignInButton>
+                        )}
+                    </div>
                 </div>
             </nav>
+
+            {/* ===== MOBILE MENU OVERLAY ===== */}
+            {isMobileMenuOpen && (
+                <div
+                    className="mobile-menu-overlay"
+                    style={{
+                        position: "fixed",
+                        top: "64px",
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "rgba(0,0,0,0.95)",
+                        backdropFilter: "blur(12px)",
+                        zIndex: 49,
+                        display: "flex",
+                        flexDirection: "column",
+                        padding: "24px",
+                        animation: "slideDown 0.2s ease",
+                    }}
+                >
+                    {/* Mobile Nav Links */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {[
+                            { label: "Home", href: "/" },
+                            { label: "Generate", href: "#generate" },
+                            { label: "Templates", href: "/templates/youtube" },
+                            { label: "Pricing", href: "/pricing" },
+                            { label: "About", href: "/about" },
+                            { label: "Contact", href: "/contact" },
+                        ].map((item) => (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                style={{
+                                    fontSize: "18px",
+                                    color: "white",
+                                    textDecoration: "none",
+                                    padding: "16px 20px",
+                                    borderRadius: "12px",
+                                    background: "rgba(255,255,255,0.03)",
+                                    border: "1px solid rgba(255,255,255,0.05)",
+                                    textAlign: "center",
+                                    transition: "all 0.2s ease",
+                                }}
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* Mobile Auth Button */}
+                    <div style={{ marginTop: "24px", textAlign: "center" }}>
+                        {isSignedIn ? (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                                <span style={{ fontSize: "14px", color: "#a1a1aa" }}>
+                                    Signed in as {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0]}
+                                </span>
+                                <UserButton
+                                    afterSignOutUrl="/"
+                                    appearance={{
+                                        elements: {
+                                            avatarBox: {
+                                                width: "48px",
+                                                height: "48px",
+                                            },
+                                        },
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <SignInButton mode="modal">
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    style={{
+                                        width: "100%",
+                                        height: "48px",
+                                        borderRadius: "9999px",
+                                        background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+                                        color: "white",
+                                        fontSize: "16px",
+                                        fontWeight: 500,
+                                        border: "none",
+                                        cursor: "pointer",
+                                        boxShadow: "0 0 24px rgba(139, 92, 246, 0.4)",
+                                    }}
+                                >
+                                    Sign In
+                                </button>
+                            </SignInButton>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* ===== HERO SECTION ===== */}
             <section className="hero-section" style={{ position: "relative" }}>
@@ -373,8 +497,76 @@ export function Hero() {
                             <RotatingWord />
                         </h1>
                         <p className="hero-subtitle">
-                            Stop wasting hours on design. Get high-converting thumbnails in seconds with our advanced AI.
+                            Your thumbnails are mid. Your engagement is tragic. Fix both in seconds—before the algorithm forgets you exist.
                         </p>
+                    </div>
+
+                    {/* Template Buttons */}
+                    <div className="template-buttons" style={{ display: "flex", justifyContent: "center", gap: "16px", marginBottom: "32px", flexWrap: "wrap" }}>
+                        <Link href="/templates/x" style={{ textDecoration: "none" }}>
+                            <button
+                                style={{
+                                    height: "48px",
+                                    padding: "0 28px",
+                                    borderRadius: "12px",
+                                    background: "rgba(0, 0, 0, 0.8)",
+                                    color: "white",
+                                    fontSize: "15px",
+                                    fontWeight: 600,
+                                    border: "1px solid #333",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    transition: "all 0.2s ease",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = "#1a1a1a";
+                                    e.currentTarget.style.borderColor = "#555";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "rgba(0, 0, 0, 0.8)";
+                                    e.currentTarget.style.borderColor = "#333";
+                                }}
+                            >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                </svg>
+                                X Templates
+                            </button>
+                        </Link>
+                        <Link href="/templates/youtube" style={{ textDecoration: "none" }}>
+                            <button
+                                style={{
+                                    height: "48px",
+                                    padding: "0 28px",
+                                    borderRadius: "12px",
+                                    background: "rgba(255, 0, 0, 0.15)",
+                                    color: "white",
+                                    fontSize: "15px",
+                                    fontWeight: 600,
+                                    border: "1px solid rgba(255, 0, 0, 0.3)",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    transition: "all 0.2s ease",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = "rgba(255, 0, 0, 0.25)";
+                                    e.currentTarget.style.borderColor = "rgba(255, 0, 0, 0.5)";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "rgba(255, 0, 0, 0.15)";
+                                    e.currentTarget.style.borderColor = "rgba(255, 0, 0, 0.3)";
+                                }}
+                            >
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="#FF0000">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                                </svg>
+                                YouTube Templates
+                            </button>
+                        </Link>
                     </div>
 
                     {/* CTA Buttons */}
