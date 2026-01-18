@@ -25,7 +25,7 @@ type Niche = "gaming" | "commentary" | "finance";
 type AspectRatio = "16:9" | "1:1" | "9:16";
 
 // Rotating words for the hero headline
-const rotatingWords = ["Videos.", "Posts.", "Content.", "Brand."];
+const rotatingWords = ["Brand.", "Videos.", "Posts.", "Content."];
 
 function RotatingWord() {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -488,7 +488,7 @@ export function Hero() {
                     <div style={{ textAlign: "center", marginBottom: "32px" }}>
                         <h1 className="hero-heading">
                             <span style={{ background: "linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                                AI Thumbnail Generator
+                                Scroll-Stopping Graphics in Seconds.
                             </span>
                             <br />
                             <span style={{ background: "linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -497,7 +497,7 @@ export function Hero() {
                             <RotatingWord />
                         </h1>
                         <p className="hero-subtitle">
-                            Your thumbnails are mid. Your engagement is tragic. Fix both in seconds—before the algorithm forgets you exist.
+                            From idea to download in 10 seconds. YouTube covers. X graphics. Brand visuals. All AI-powered.
                         </p>
                     </div>
 
