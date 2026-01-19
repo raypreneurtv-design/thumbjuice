@@ -11,6 +11,8 @@ const PROMPT_TEMPLATES: Record<string, (description: string) => string> = {
         `YouTube commentary thumbnail: ${description}, expressive reaction face, bold emotional expression, studio lighting, high contrast, eye-catching colors, professional aesthetic`,
     finance: (description: string) =>
         `Professional YouTube finance thumbnail: ${description}, clean design, trustworthy aesthetic, charts or graphs if relevant, sophisticated color palette, credible business look`,
+    // X Templates pass prompts directly - they're already fully formed
+    "x-template": (description: string) => description,
 };
 
 export async function POST(request: NextRequest) {
